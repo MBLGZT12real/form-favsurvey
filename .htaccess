@@ -1,0 +1,8 @@
+<IfModule mod_rewrite.c>
+Options -Indexes
+
+RewriteCond %{SERVER_NAME} ^www\. [NC,OR]
+RewriteCond %{HTTPS} ^off$ [NC]
+RewriteCond %{SERVER_NAME} ^(www\.)?(.*) [NC]
+RewriteRule ^/?(.*) https://%2/$1 [L,R=301,NE,QSA]
+</IfModule>
