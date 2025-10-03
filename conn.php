@@ -2,16 +2,16 @@
 	date_default_timezone_set("Asia/Jakarta");
 	
 	//DB SERVER
-	/*$db_host 	= "localhost";
+	$db_host 	= "localhost";
 	$db_user 	= "root";
 	$db_pass 	= "";
-	$db_name 	= "ems_imos_25";*/
+	$db_name 	= "ems_2025";
 	
 	//DB SERVER ONLINE
-	$db_host 	= "localhost";
+	/*$db_host 	= "localhost";
 	$db_user 	= "sevenems_superadmin";
 	$db_pass 	= "Seven.1214!!";
-	$db_name 	= "sevenems_ems_imos_25";
+	$db_name 	= "sevenems_ems_imos_25";*/
 	
 	//DB SERVER CLOUD
 	/*$db_host 	= "sevenems.com";

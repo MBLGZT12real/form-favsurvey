@@ -19,70 +19,86 @@
 			<img class="header" src="images/Header.webp" style="margin:0px;">
 		</div>
 		<?php 
-			//if(isset($_POST['pilihan13'])){ 
-            if($_SERVER['REQUEST_METHOD']=="POST"){ 
-			    //var_dump($_POST); // debugging, cek data yang masuk
-			    
-				$form_nama	= mysqli_real_escape_string($koneksi,strtoupper($_POST['name']));
-				$form_phone	= $_POST['phone'];
-				$form_city	= mysqli_real_escape_string($koneksi,strtoupper($_POST['city']));
-				$form_prov	= mysqli_real_escape_string($koneksi,strtoupper($_POST['province']));
-				$form_date	= $_POST['date'];
-				$form_time	= $_POST['time'];
-				
-				// Variable to check
-				$form_email	= $_POST['email'];
-				$cat1	= mysqli_real_escape_string($koneksi,$_POST['pilihan1']);
-				$cat2	= mysqli_real_escape_string($koneksi,$_POST['pilihan2']);
-				$cat3	= mysqli_real_escape_string($koneksi,$_POST['pilihan3']);
-				$cat4	= mysqli_real_escape_string($koneksi,$_POST['pilihan4']);
-				$cat5	= mysqli_real_escape_string($koneksi,$_POST['pilihan5']);
-				$cat6	= mysqli_real_escape_string($koneksi,$_POST['pilihan6']);
-				$cat7	= mysqli_real_escape_string($koneksi,$_POST['pilihan7']);
-				$cat8	= mysqli_real_escape_string($koneksi,$_POST['pilihan8']);
-				$cat9	= mysqli_real_escape_string($koneksi,$_POST['pilihan9']);
-				$cat10	= mysqli_real_escape_string($koneksi,$_POST['pilihan10']);
-				$cat11	= mysqli_real_escape_string($koneksi,$_POST['pilihan11']);
-				$cat12	= mysqli_real_escape_string($koneksi,$_POST['pilihan12']);
-				
-				//echo $form_email;
-				//print_r($form_email);
-				
-				if(isset($form_email)){
-					$save = mysqli_query($koneksi,"INSERT INTO sv_result (fullname,phone,email,city,province,date,time,cat1,cat2,cat3,cat4,cat5,cat6,cat7,cat8,cat9,cat10,cat11,cat12) VALUES ('$form_nama','$form_phone','$form_email','$form_city','$form_prov','$form_date','$form_time','$cat1','$cat2','$cat3','$cat4','$cat5','$cat6','$cat7','$cat8','$cat9','$cat10','$cat11','$cat12')") or die (mysqli_error($koneksi));
+			if($_SERVER['REQUEST_METHOD']=="POST") { 
+			    // Data personal
+				$form_nama  = mysqli_real_escape_string($koneksi, strtoupper($_POST['name']));
+				$form_phone = mysqli_real_escape_string($koneksi, $_POST['phone']);
+				$form_city  = mysqli_real_escape_string($koneksi, strtoupper($_POST['city']));
+				$form_prov  = mysqli_real_escape_string($koneksi, strtoupper($_POST['province']));
+				$form_date  = mysqli_real_escape_string($koneksi, $_POST['date']);
+				$form_time  = mysqli_real_escape_string($koneksi, $_POST['time']);
+				$form_email = mysqli_real_escape_string($koneksi, $_POST['email']);
+
+				if (!empty($form_email)) { 
+					// Kolom awal
+					$columns = ["fullname","phone","email","city","province","date","time"];
+					$values  = [
+						"'$form_nama'",
+						"'$form_phone'",
+						"'$form_email'",
+						"'$form_city'",
+						"'$form_prov'",
+						"'$form_date'",
+						"'$form_time'"
+					];
+
+					// Ambil semua kategori untuk buat cat1, cat2, dst
+					$catsql = "SELECT * FROM sv_kategori ORDER BY id_kat ASC";
+					$cathsl = $koneksi->query($catsql);
+
+					$counter = 1;
+					while($category = $cathsl->fetch_assoc()){ 
+						$fieldName = "pilihan" . $category['id_kat']; // input name di form
+						$colName   = "cat" . $counter;                // kolom di tabel sv_result
+
+						$columns[] = $colName;
+
+						if(isset($_POST[$fieldName]) && $_POST[$fieldName] !== ""){ 
+							$val = mysqli_real_escape_string($koneksi, $_POST[$fieldName]);
+							$values[] = "'$val'";
+						} else { 
+							$values[] = "NULL";
+						}
+						$counter++;
+					}
+
+					// Susun query dinamis
+					$sql = "INSERT INTO sv_result (" . implode(",", $columns) . ") 
+							VALUES (" . implode(",", $values) . ")";
+
+					// Eksekusi
+					$save = mysqli_query($koneksi, $sql) or die(mysqli_error($koneksi));
 					
-					if($save){
+					if ($save) { 
 						echo '
 							<div class="alert alert-info alert-dismissable" style="font-size:20px;">
 								Data saved successfully.
-								
 								<script type="text/javascript">
 									setTimeout(function(){
-										window.location = "https://sevenems.com/form-favsurvey/thanks.php";
+										window.location = "thanks.php";
 									}, 1000);
 								</script>
 							</div>
 						';
-					}else{
+					} else { 
 						echo '
 							<div class="alert alert-danger alert-dismissable" style="font-size:20px;">
 								Data failed to save, please try again.
-								
 								<script type="text/javascript">
 									var r = alert("Data failed to save.!");
 									setTimeout(function(){
-										window.location = "https://sevenems.com/form-favsurvey/";
+										window.location = "index.php";
 									}, 1000);
 								</script>
 							</div>
 						';
 					}
-				}else{
+				} else { 
 					echo '
 						<script type="text/javascript">
-							var r = alert("Data failed to save.!");
+							var r = alert("Data not valid, Data failed to save.!");
 							setTimeout(function(){
-								window.location = "https://sevenems.com/form-favsurvey/";
+								window.location = "index.php";
 							}, 1000);
 						</script>
 					';
